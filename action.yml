@@ -77,21 +77,25 @@ runs:
     - name: Run custom KiCad Docker container with inputs
       shell: bash
       run: |
-        docker run --rm custom-kicad:8.0
-        "${{ inputs.kicad_sch }}"
-        "${{ inputs.sch_erc }}"
-        "${{ inputs.sch_erc_file }}"
-        "${{ inputs.sch_pdf }}"
-        "${{ inputs.sch_pdf_file }}"
-        "${{ inputs.sch_bom }}"
-        "${{ inputs.sch_bom_file }}"
-        "${{ inputs.sch_bom_preset }}"
-        "${{ inputs.report_format }}"
-        "${{ inputs.kicad_pcb }}"
-        "${{ inputs.pcb_drc }}"
-        "${{ inputs.pcb_drc_file }}"
-        "${{ inputs.pcb_gerbers }}"
-        "${{ inputs.pcb_gerbers_file }}"
+        chmod +r "${{ github.workspace }}/${{ inputs.kicad_sch }}"
+        docker run --rm \
+          -v "${{ github.workspace }}:/workspace" \
+          custom-kicad:8.0 \
+          /entrypoint.sh \
+          "${{ inputs.kicad_sch }}" \
+          "${{ inputs.sch_erc }}" \
+          "${{ inputs.sch_erc_file }}" \
+          "${{ inputs.sch_pdf }}" \
+          "${{ inputs.sch_pdf_file }}" \
+          "${{ inputs.sch_bom }}" \
+          "${{ inputs.sch_bom_file }}" \
+          "${{ inputs.sch_bom_preset }}" \
+          "${{ inputs.report_format }}" \
+          "${{ inputs.kicad_pcb }}" \
+          "${{ inputs.pcb_drc }}" \
+          "${{ inputs.pcb_drc_file }}" \
+          "${{ inputs.pcb_gerbers }}" \
+          "${{ inputs.pcb_gerbers_file }}"
 
 branding:
   icon: 'zap'
