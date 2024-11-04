@@ -49,8 +49,48 @@ inputs:
     default: 'gbr.zip'
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Cache Docker layers
+      id: cache-docker-layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-kicad-cache
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build custom Docker image
+      shell: bash
+      run: |
+        docker buildx build \
+          --cache-from=type=local,src=/tmp/.buildx-cache \
+          --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+          -t cached-kicad:8.0 \
+          -f Dockerfile \
+          .
+
+    - name: Run custom KiCad Docker container with inputs
+      shell: bash
+      run: |
+        docker run --rm cached-kicad:8.0
+        "${{ inputs.kicad_sch }}"
+        "${{ inputs.sch_erc }}"
+        "${{ inputs.sch_erc_file }}"
+        "${{ inputs.sch_pdf }}"
+        "${{ inputs.sch_pdf_file }}"
+        "${{ inputs.sch_bom }}"
+        "${{ inputs.sch_bom_file }}"
+        "${{ inputs.sch_bom_preset }}"
+        "${{ inputs.report_format }}"
+        "${{ inputs.kicad_pcb }}"
+        "${{ inputs.pcb_drc }}"
+        "${{ inputs.pcb_drc_file }}"
+        "${{ inputs.pcb_gerbers }}"
+        "${{ inputs.pcb_gerbers_file }}"
 
 branding:
   icon: 'zap'
