@@ -10,13 +10,13 @@ ERROR_LOG="${OUTPUT_DIR}/error.log"
 
 # Required input validation
 if [[ -z "$INPUT_KICAD_SCH" ]] && [[ -z "$INPUT_KICAD_PCB" ]]; then
-  echo "Error: At least one of INPUT_KICAD_SCH or INPUT_KICAD_PCB must be provided." | tee -a "$ERROR_LOG"
+  echo "Error: At least one of KICAD_SCH or KICAD_PCB must be provided." | tee -a "$ERROR_LOG"
   exit 1
 fi
 
 # Determine the output file extension based on report format
 get_report_extension() {
-  if [[ "$REPORT_FORMAT" == "json" ]]; then
+  if [[ "$INPUT_REPORT_FORMAT" == "json" ]]; then
     echo "json"
   else
     echo "rpt"
@@ -24,9 +24,9 @@ get_report_extension() {
 }
 
 # Run ERC on schematic if requested
-if [[ "$SCH_ERC" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
-  erc_output_file="${OUTPUT_DIR}/${SCH_ERC_FILE:-erc}.$(get_report_extension)"
-  kicad_cli sch export erc "$INPUT_KICAD_SCH" --output "$erc_output_file" --format "$REPORT_FORMAT" || {
+if [[ "$INPUT_SCH_ERC" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
+  erc_output_file="${OUTPUT_DIR}/${INPUT_SCH_ERC_FILE:-erc}.$(get_report_extension)"
+  kicad_cli sch export erc "$INPUT_KICAD_SCH" --output "$erc_output_file" --format "$INPUT_REPORT_FORMAT" || {
     echo "ERC failed." | tee -a "$ERROR_LOG"
     exit 1
   }
@@ -34,8 +34,8 @@ if [[ "$SCH_ERC" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
 fi
 
 # Generate PDF from schematic if requested
-if [[ "$SCH_PDF" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
-  pdf_output_file="${OUTPUT_DIR}/${SCH_PDF_FILE:-sch.pdf}"
+if [[ "$INPUT_SCH_PDF" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
+  pdf_output_file="${OUTPUT_DIR}/${INPUT_SCH_PDF_FILE:-sch.pdf}"
   kicad_cli sch export pdf "$INPUT_KICAD_SCH" --output "$pdf_output_file" || {
     echo "PDF generation failed." | tee -a "$ERROR_LOG"
     exit 1
@@ -44,11 +44,11 @@ if [[ "$SCH_PDF" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
 fi
 
 # Generate BOM from schematic if requested
-if [[ "$SCH_BOM" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
-  bom_output_file="${OUTPUT_DIR}/${SCH_BOM_FILE:-bom.csv}"
+if [[ "$INPUT_SCH_BOM" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
+  bom_output_file="${OUTPUT_DIR}/${INPUT_SCH_BOM_FILE:-bom.csv}"
   bom_preset_flag=()
-  if [[ -n "$SCH_BOM_PRESET" ]]; then
-    bom_preset_flag=(--preset "$SCH_BOM_PRESET")
+  if [[ -n "$INPUT_SCH_BOM_PRESET" ]]; then
+    bom_preset_flag=(--preset "$INPUT_SCH_BOM_PRESET")
   fi
   kicad_cli sch export bom "$INPUT_KICAD_SCH" --output "$bom_output_file" "${bom_preset_flag[@]}" || {
     echo "BOM generation failed." | tee -a "$ERROR_LOG"
@@ -58,9 +58,9 @@ if [[ "$SCH_BOM" == "true" && -n "$INPUT_KICAD_SCH" ]]; then
 fi
 
 # Run DRC on PCB if requested
-if [[ "$PCB_DRC" == "true" && -n "$INPUT_KICAD_PCB" ]]; then
-  drc_output_file="${OUTPUT_DIR}/${PCB_DRC_FILE:-drc}.$(get_report_extension)"
-  kicad_cli pcb export drc "$INPUT_KICAD_PCB" --output "$drc_output_file" --format "$REPORT_FORMAT" || {
+if [[ "$INPUT_PCB_DRC" == "true" && -n "$INPUT_KICAD_PCB" ]]; then
+  drc_output_file="${OUTPUT_DIR}/${INPUT_PCB_DRC_FILE:-drc}.$(get_report_extension)"
+  kicad_cli pcb export drc "$INPUT_KICAD_PCB" --output "$drc_output_file" --format "$INPUT_REPORT_FORMAT" || {
     echo "DRC failed." | tee -a "$ERROR_LOG"
     exit 1
   }
@@ -68,8 +68,8 @@ if [[ "$PCB_DRC" == "true" && -n "$INPUT_KICAD_PCB" ]]; then
 fi
 
 # Generate Gerbers from PCB if requested
-if [[ "$PCB_GERBERS" == "true" && -n "$INPUT_KICAD_PCB" ]]; then
-  gerbers_output_file="${OUTPUT_DIR}/${PCB_GERBERS_FILE:-gbr.zip}"
+if [[ "$INPUT_PCB_GERBERS" == "true" && -n "$INPUT_KICAD_PCB" ]]; then
+  gerbers_output_file="${OUTPUT_DIR}/${INPUT_PCB_GERBERS_FILE:-gbr.zip}"
   kicad_cli pcb export gerbers "$INPUT_KICAD_PCB" --output "$gerbers_output_file" || {
     echo "Gerbers generation failed." | tee -a "$ERROR_LOG"
     exit 1
