@@ -53,26 +53,16 @@ runs:
   steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    
-    - name: Cache Docker layers
-      id: cache-docker-layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-kicad-cache
-        restore-keys: |
-          ${{ runner.os }}-buildx-
 
-    - name: Build custom Docker image
-      shell: bash
-      run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
-          --load \
-          -t custom-kicad:8.0 \
-          -f Dockerfile \
-          .
+    - name: Build and Cache Docker Image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: Dockerfile
+        tags: custom-kicad:8.0
+        load: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Run custom KiCad Docker container with inputs
       shell: bash
