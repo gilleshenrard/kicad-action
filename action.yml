@@ -69,14 +69,14 @@ runs:
         docker buildx build \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
-          -t cached-kicad:8.0 \
+          -t custom-kicad:8.0 \
           -f Dockerfile \
           .
 
     - name: Run custom KiCad Docker container with inputs
       shell: bash
       run: |
-        docker run --rm cached-kicad:8.0
+        docker run --rm custom-kicad:8.0
         "${{ inputs.kicad_sch }}"
         "${{ inputs.sch_erc }}"
         "${{ inputs.sch_erc_file }}"
