@@ -69,6 +69,7 @@ runs:
         docker buildx build \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+          --load \
           -t custom-kicad:8.0 \
           -f Dockerfile \
           .
