@@ -8,6 +8,10 @@ ERROR_LOG="${OUTPUT_DIR}/error.log"
 # Clear the error log at the start of each run
 > "$ERROR_LOG"
 
+# Debugging: Print input values
+echo "DEBUG: INPUT_KICAD_SCH = $INPUT_KICAD_SCH"
+echo "DEBUG: INPUT_KICAD_PCB = $INPUT_KICAD_PCB"
+
 # Required input validation
 if [[ -z "$INPUT_KICAD_SCH" ]] && [[ -z "$INPUT_KICAD_PCB" ]]; then
   echo "Error: At least one of KICAD_SCH or KICAD_PCB must be provided." | tee -a "$ERROR_LOG"
